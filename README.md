@@ -25,8 +25,8 @@ Clone the repository outside your solutions folder and install:
 
 ```bash
 mkdir -p ~/dev
-git clone https://github.com/dhruvkshah75/cf-tool.git ~/dev/cf-tool
-cd ~/dev/cf-tool
+git clone https://github.com/dhruvkshah75/cfast.git ~/dev/cfast
+cd ~/dev/cfast
 ./install.sh
 ```
 
