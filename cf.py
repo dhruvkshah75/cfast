@@ -370,7 +370,7 @@ def load_cases(pid, snapshot):
     return metadata, cases
 
 
-def print_section(label, path):
+def print_section(label, path, *, ok=False):
     print(styled(f"--{label}--", "36"))
     with path.open("rb") as source:
         raw = source.read(65537)
@@ -379,7 +379,9 @@ def print_section(label, path):
         content = "(no output)" if label == "got" else "(empty)"
     elif not raw.strip():
         content = "(whitespace only)"
-    if label in ("got", "stderr"):
+    if label == "got":
+        content = styled(content, "32" if ok else "31")
+    elif label == "stderr":
         content = styled(content, "31")
     elif label == "debug (stderr)":
         content = styled(content, "33")
@@ -508,7 +510,11 @@ def run(args):
         print(f"limits: {timeout:g}s CPU, {memory:g} MiB address space; wall guard {max(3, timeout * 3):g}s", flush=True)
         executable = scratch / "solution"
         print(f"compiling {source.name} ...", flush=True)
-        compiled = subprocess.run(["g++", "-std=c++20", "-O2", "-Wall", "-DLOCAL", str(source), "-o", str(executable)])
+        # Keep __FILE__ in existing dbg() macros short without rewriting the
+        # solution or shifting its source line numbers.
+        macro_path = f"-fmacro-prefix-map={source}={source.name}"
+        compiled = subprocess.run(["g++", "-std=c++20", "-O2", "-Wall", "-DLOCAL",
+                                   macro_path, str(source), "-o", str(executable)])
         if compiled.returncode:
             print(color("FAILED: compile error"))
             return 1
@@ -530,11 +536,12 @@ def run(args):
                 print(color(f"test {label}: {verdict} ({stats})"), flush=True)
                 if status == "WA":
                     print_section("input", case / "case.in")
-                    print_section("got", actual)
-                    print_section("expected", case / "case.out")
                 if result.get("allocation_failure"):
                     print("Allocation failed: check input and allocation sizes. The address-space cap may also "
                           "deny an allocation; bad_alloc alone does not prove MLE.")
+            if status in ("AC", "WA"):
+                print_section("got", actual, ok=status == "AC")
+                print_section("expected", case / "case.out")
             if stderr.exists() and stderr.stat().st_size:
                 section = "stderr" if status in ("RE", "MLE", "OLE") else "debug (stderr)"
                 print_section(section, stderr)

@@ -95,6 +95,10 @@ The filename identifies the problem: `1032D.cpp`, `1234B1.cpp`, or
 
 ```text
 test 1: OK (0.000s CPU, 0.004s wall, 3.12 MiB peak RSS)
+--got--
+5
+--expected--
+5
 test 2: WA (...)
 --input--
 2 3
@@ -116,6 +120,8 @@ cyan. Colors are enabled automatically in terminals. Use `--color always` to
 force them, or
 `--color never` / `NO_COLOR=1` to disable them. Empty output is shown explicitly
 as `(no output)`.
+Both passing and wrong-answer tests show `--got--` and `--expected--`.
+Matching output is green; incorrect output is red.
 
 Each complete sample is passed to a fresh process through standard input.
 Standard output is compared as whitespace-separated tokens; `cerr` stays separate.
@@ -123,11 +129,15 @@ Debug messages written with `dbg()`, `cerr`, or `fprintf(stderr, ...)` appear in
 a `--debug (stderr)--` section for each test, including passed and wrong-answer
 tests. They do not affect output comparison. Runtime-error diagnostics appear
 under `--stderr--`. Displays are truncated at 64 KiB to keep large logs readable.
+Debug locations use the filename and original line number, for example
+`[2266E.cpp:88]`, rather than an absolute path.
 Your solution must handle its own input format, including any leading test count.
 Use standard input/output rather than `freopen()` redirects.
 
 Compilation uses `g++ -std=c++20 -O2 -Wall -DLOCAL`. Binaries and execution files
-are created in temporary directories and cleaned up after the run.
+are created in temporary directories and cleaned up after the run. The compiler
+also maps the source's `__FILE__` macro to its filename with
+`-fmacro-prefix-map`, so existing debug macros need no edits.
 
 ## Limits and comparison
 
@@ -168,6 +178,7 @@ sandbox for untrusted executables.
 ## Templates and custom cases
 
 Edit `template.cpp`, or put a personal override at `~/.cf/template.cpp`.
+The template's `dbg()` supports scalar values and vectors.
 The template reads a leading test count and returns safely if that read fails.
 For a single-case problem, replace the test-count loop with one `solve()` call.
 
