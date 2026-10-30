@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.DS_Store
+tests/
+*.in
+*.out
+*.o
+*.exe
+/build/
+/dist/
+.agents/
+.codex/
+.aws/
