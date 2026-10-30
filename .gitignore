@@ -1,15 +1,25 @@
+# Local Python environment and caches
+.venv/
 __pycache__/
 *.py[cod]
-.venv/
 .pytest_cache/
-.DS_Store
-tests/
+
+# Sample data, development fixtures, and build output
+/tests/
 *.in
 *.out
 *.o
 *.exe
 /build/
 /dist/
+
+# Local planning documents
+/PROGRESS.md
+/SPEC.md
+/cf-tool-SPEC.md
+
+# Local tooling and OS files
 .agents/
 .codex/
 .aws/
+.DS_Store
