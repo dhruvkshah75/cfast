@@ -14,6 +14,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -25,6 +26,7 @@ MAX_BODY = 8 * 1024 * 1024
 OUTPUT_LIMIT = 8 * 1024 * 1024
 DEFAULT_TIMEOUT = 5.0
 DEFAULT_MEMORY = 256.0
+DEFAULT_RETENTION_DAYS = 30
 
 
 class ToolError(Exception):
@@ -219,6 +221,71 @@ def add(args):
     return 0
 
 
+def downloaded_samples(folder):
+    """Only Companion's numbered files are disposable; never follow symlinks."""
+    return sorted(path for path in folder.iterdir()
+                  if re.fullmatch(r"[0-9]+\.(?:in|out)", path.name)
+                  and not path.is_symlink() and path.is_file())
+
+
+def human_size(size):
+    for unit in ("B", "KiB", "MiB", "GiB"):
+        if size < 1024 or unit == "GiB":
+            return f"{size:.1f} {unit}"
+        size /= 1024
+
+
+def clean(args):
+    if args.id and (args.all or args.older_than is not None):
+        raise ToolError("choose a problem ID, --all, or --older-than DAYS")
+    days = args.older_than if args.older_than is not None else DEFAULT_RETENTION_DAYS
+    cutoff = None if args.id or args.all else time.time() - days * 86400
+    if args.id:
+        folders = [TESTS / problem_id(args.id)]
+    else:
+        folders = sorted(TESTS.iterdir()) if TESTS.is_dir() else []
+    problems = files = size = 0
+    for folder in folders:
+        try:
+            pid = problem_id(folder.name)
+        except ToolError:
+            continue
+        if folder.is_symlink():
+            if args.id:
+                raise ToolError(f"refusing to clean a symlink: {folder}")
+            continue
+        if not folder.is_dir():
+            continue
+        # Use the same lock as import/add/snapshot so a cleanup cannot race
+        # a refresh or remove the files before a running test has copied them.
+        with problem_lock(pid):
+            if not folder.is_dir() or folder.is_symlink():
+                continue
+            samples = downloaded_samples(folder)
+            if not samples:
+                continue
+            last_used = max(path.stat().st_mtime for path in samples)
+            marker = folder / ".last-used"
+            if marker.is_file() and not marker.is_symlink():
+                last_used = max(last_used, marker.stat().st_mtime)
+            if cutoff is not None and last_used >= cutoff:
+                continue
+            sample_size = sum(path.stat().st_size for path in samples)
+            if args.yes:
+                for path in samples:
+                    path.unlink()
+            problems += 1
+            files += len(samples)
+            size += sample_size
+            print(f"{'removed' if args.yes else 'would remove'} {pid}: "
+                  f"{len(samples)} sample files ({human_size(sample_size)})")
+    print(f"{'Removed' if args.yes else 'Preview'}: {files} sample files in "
+          f"{problems} problems ({human_size(size)} of sample data). Custom cases are kept.")
+    if files and not args.yes:
+        print("Use --yes to remove these downloaded samples; re-import them with Competitive Companion when needed.")
+    return 0
+
+
 def backend():
     """Use oj's pinned CLI engine without its unrelated network update check."""
     python = Path(os.environ.get("CFAST_PYTHON", ROOT / ".venv/bin/python"))
@@ -270,6 +337,9 @@ def load_cases(pid, snapshot):
                 cases.append((prefix + inp.stem, case))
         if not cases:
             raise ToolError(f"no tests saved for {pid} - click Competitive Companion first")
+        marker = folder / ".last-used"
+        if not marker.is_symlink():
+            marker.touch()
     return metadata, cases
 
 
@@ -443,12 +513,21 @@ def parser():
     adding.add_argument("id", nargs="?")
     adding.add_argument("--input", type=Path)
     adding.add_argument("--output", type=Path)
+    cleaning = subs.add_parser("clean", help="remove downloaded samples; preview by default")
+    cleaning.add_argument("id", nargs="?", help="clean samples for one problem")
+    selection = cleaning.add_mutually_exclusive_group()
+    selection.add_argument("--older-than", type=positive, metavar="DAYS",
+                           help=f"samples unused for this many days (default: {DEFAULT_RETENTION_DAYS})")
+    selection.add_argument("--all", action="store_true", help="select all downloaded samples")
+    action = cleaning.add_mutually_exclusive_group()
+    action.add_argument("--yes", action="store_true", help="delete selected samples")
+    action.add_argument("--dry-run", action="store_true", help="preview only (the default)")
     return result
 
 
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
-    commands = {"listen", "new", "run", "add"}
+    commands = {"listen", "new", "run", "add", "clean"}
     if not argv or (argv[0] not in commands and argv[0] not in ("-h", "--help")):
         argv.insert(0, "run")
     args = parser().parse_args(argv)
@@ -463,6 +542,8 @@ def main(argv=None):
             return new(args.id)
         if args.command == "add":
             return add(args)
+        if args.command == "clean":
+            return clean(args)
         return run(args)
     except KeyboardInterrupt:
         print("interrupted", file=sys.stderr)

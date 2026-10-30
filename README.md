@@ -84,6 +84,7 @@ The filename identifies the problem: `1032D.cpp`, `1234B1.cpp`, or
 | `cfast 1032D` | Compile and test `1032D.cpp` |
 | `cfast run main.cpp --problem 1032D` | Associate a differently named file with saved samples |
 | `cfast add 1032D` | Open an editor to add a custom case |
+| `cfast clean` | Preview downloaded samples unused for 30 days |
 
 ### Results
 
@@ -166,6 +167,32 @@ EDITOR='subl -w' cfast add 1032D
 Custom cases are stored under `~/.cf/tests/1032D/custom/` and run with the samples.
 Importing the problem again refreshes the samples and preserves custom cases.
 With no ID, `cfast add` uses the latest C++ file's name.
+
+## Sample storage and cleanup
+
+Downloaded samples are saved as `.in`/`.out` pairs in `~/.cf/tests/<ID>/`.
+Importing the same problem again replaces its samples instead of accumulating
+duplicates. Binaries, actual outputs, and other execution files are temporary
+and are deleted after the run finishes.
+
+Use `clean` to manage the saved sample cache:
+
+```bash
+cfast clean                         # Preview samples unused for 30 days
+cfast clean --yes                   # Remove those samples
+cfast clean --older-than 90 --yes    # Choose another retention period
+cfast clean 1032D --yes              # Remove one problem's downloaded samples
+cfast clean --all --yes              # Remove all downloaded samples
+```
+
+Cleanup previews by default; `--dry-run` makes that explicit. Only `--yes`
+deletes files. Age is measured from the most recent import or test run. Existing
+caches without a usage marker use the sample files' modification times.
+Custom cases, problem metadata, and solution files are kept. Removing samples
+does not affect a run that has already copied its cases to temporary storage.
+You can re-import removed samples with Competitive Companion.
+
+Cleanup is manual; samples do not silently expire while you are working offline.
 
 ## Moving to another machine
 
