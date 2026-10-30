@@ -340,7 +340,15 @@ def check_case(command, gnu_time, executable, case, timeout, memory, eps):
     if not isinstance(records, list) or len(records) != 1:
         raise ToolError("oj returned an unexpected testcase report")
     result = records[0]
+    # oj 11.5.1's display_result can overwrite RE/TLE with WA when the
+    # incomplete output differs. Restore execution verdict precedence from
+    # the structured process facts, keeping oj's AC/WA comparison otherwise.
+    if result.get("exitcode") is None:
+        result["status"] = "TLE"
+    elif result["exitcode"] != 0:
+        result["status"] = "RE"
     result["wall_elapsed"] = result["elapsed"]
+    result["elapsed"] = None
     if usage_file.exists():
         try:
             user, system, rss = usage_file.read_text().splitlines()[-1].split()
@@ -348,9 +356,13 @@ def check_case(command, gnu_time, executable, case, timeout, memory, eps):
             result["memory"] = float(rss) / 1000
             if result["elapsed"] > timeout:
                 result["status"] = "TLE"
+            elif result["memory"] > memory * 1.024:
+                result["status"] = "MLE"
         except (ValueError, IndexError):
             if result["status"] != "TLE":
                 raise ToolError("GNU time returned invalid resource measurements") from None
+    elif result["status"] != "TLE":
+        raise ToolError("GNU time did not record resource measurements")
     stderr = err.read_text(encoding="utf-8", errors="replace") if err.exists() else ""
     if "prlimit:" in stderr:
         raise ToolError(f"could not enforce resource limits: {stderr.strip()}")
@@ -394,7 +406,8 @@ def run(args):
             status = result["status"]
             elapsed = result["elapsed"]
             memory_used = result.get("memory")
-            stats = f"{elapsed:.3f}s CPU, {result['wall_elapsed']:.3f}s wall"
+            stats = f"{elapsed:.3f}s CPU" if elapsed is not None else "CPU unavailable"
+            stats += f", {result['wall_elapsed']:.3f}s wall"
             if memory_used is not None:
                 stats += f", {memory_used / 1.024:.2f} MiB peak RSS"
             if status == "AC":
@@ -423,7 +436,7 @@ def parser():
     running = subs.add_parser("run", help="compile and test a C++ file")
     running.add_argument("source", nargs="?")
     running.add_argument("--problem", help="problem ID when the source has another name")
-    running.add_argument("--timeout", type=positive, help="per-sample seconds; overrides problem metadata")
+    running.add_argument("--timeout", type=positive, help="per-sample CPU seconds; overrides problem metadata")
     running.add_argument("--memory", type=positive, help="hard address-space ceiling in MiB")
     running.add_argument("--eps", type=positive, help="absolute/relative floating-point tolerance")
     adding = subs.add_parser("add", help="add a custom input/output pair")

@@ -18,7 +18,7 @@ resource checks in the first version, and ignored development tests.
 - [x] Discussion: metadata time/memory limits, overrides, hard Linux address-space cap, measured memory, MLE regression.
 - [x] Discussion: custom cases preserved across sample refresh; clear checker/interactive limitations.
 - [ ] Phase 1 / Acceptance 7: clean install/reinstall and fresh git clone install; command works from another directory.
-- [ ] Phase 1: README documents setup, browser port, Sublime workflow, limits, assumptions, GitHub restore.
+- [x] Phase 1: README documents setup, browser port, Sublime workflow, limits, assumptions, GitHub restore.
 - [ ] Run the complete ignored development suite with one command.
 - [ ] Fresh final review against SPEC.md; fix gaps; commit everything intended; clean git status.
 
@@ -41,3 +41,7 @@ None.
 - Crash verification exposed Ubuntu apport core-collection delay. Use measured CPU time as the primary limit, Linux CPU allocation limits, and an independent wall guard max(3s, 3 * CPU limit). This avoids charging crash collection to the solution. Subsecond CPU limits are checked after completion; kernel CPU termination is rounded up to whole seconds.
 - Record GNU time measurements for the native launcher/solution only; cap file output at 8 MiB and kill the testcase process group even if a program ignores SIGTERM.
 - Lock all tested Python dependency versions for reproducible installs.
+
+- Checkpoint 3: 27 local unittest tests passed in 24.90s, including clean install/reinstall from a path with spaces, shell use from another directory, template resolution through the symlink, float tolerance, output limiting, and SIGTERM-ignoring process cleanup.
+- Expanded tests found an upstream oj 11.5.1 bug: an output mismatch overwrites RE/TLE with WA. Normalize verdict precedence from oj process facts; added nonempty-expected-output crash/TLE/MLE regressions and an explicit exit-7 regression.
+- README and executable installer completed; fresh git-clone and real-home smoke verification remain.
