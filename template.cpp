@@ -16,6 +16,18 @@ typedef tuple<int,int,int> tiii;
 #define setbitsll(x) __builtin_popcountll(x)
 
 #ifdef LOCAL
+// Overload operator<< so cerr knows how to print std::vector
+template <typename T>
+
+
+ostream& operator<<(ostream& os, const vector<T>& v) {
+    os << "[";
+    for(size_t i = 0; i < v.size(); ++i) {
+        os << v[i] << (i + 1 < v.size() ? ", " : "");
+    }
+    return os << "]";
+}
+
 template <class... T> void debug_values(const T&... values) {
     ((cerr << values << ' '), ...);
     cerr << '\n';
