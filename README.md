@@ -111,13 +111,18 @@ exit with status `0`; failed tests and setup errors exit with `1`. Invalid CLI
 syntax exits with `2`.
 
 Passing results and `PASSED` summaries are green. Failures, incorrect output,
-and `FAILED` summaries are red; section headings are cyan. Colors are enabled
-automatically in terminals. Use `--color always` to force them, or
+and `FAILED` summaries are red; debug output is yellow and section headings are
+cyan. Colors are enabled automatically in terminals. Use `--color always` to
+force them, or
 `--color never` / `NO_COLOR=1` to disable them. Empty output is shown explicitly
 as `(no output)`.
 
 Each complete sample is passed to a fresh process through standard input.
 Standard output is compared as whitespace-separated tokens; `cerr` stays separate.
+Debug messages written with `dbg()`, `cerr`, or `fprintf(stderr, ...)` appear in
+a `--debug (stderr)--` section for each test, including passed and wrong-answer
+tests. They do not affect output comparison. Runtime-error diagnostics appear
+under `--stderr--`. Displays are truncated at 64 KiB to keep large logs readable.
 Your solution must handle its own input format, including any leading test count.
 Use standard input/output rather than `freopen()` redirects.
 

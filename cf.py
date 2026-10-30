@@ -381,6 +381,8 @@ def print_section(label, path):
         content = "(whitespace only)"
     if label in ("got", "stderr"):
         content = styled(content, "31")
+    elif label == "debug (stderr)":
+        content = styled(content, "33")
     elif label == "expected":
         content = styled(content, "32")
     print(content)
@@ -530,11 +532,12 @@ def run(args):
                     print_section("input", case / "case.in")
                     print_section("got", actual)
                     print_section("expected", case / "case.out")
-                elif status in ("RE", "MLE", "OLE") and stderr.exists() and stderr.stat().st_size:
-                    print_section("stderr", stderr)
                 if result.get("allocation_failure"):
                     print("Allocation failed: check input and allocation sizes. The address-space cap may also "
                           "deny an allocation; bad_alloc alone does not prove MLE.")
+            if stderr.exists() and stderr.stat().st_size:
+                section = "stderr" if status in ("RE", "MLE", "OLE") else "debug (stderr)"
+                print_section(section, stderr)
         success = passed == len(cases)
         summary = f"{'PASSED' if success else 'FAILED'}: {passed}/{len(cases)} passed"
         if not success:
