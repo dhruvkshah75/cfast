@@ -1,3 +1,4 @@
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -32,7 +33,7 @@ int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    int t;
-    cin >> t;  
+    int t = 0;
+    if (!(cin >> t) || t < 0) return 0;
     while (t--) solve();
 }

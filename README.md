@@ -12,6 +12,9 @@ CPU time, wall time, and peak memory usage.
 - Apply local CPU and memory limits, with readable output on failure.
 - Save custom cases and keep them when refreshing samples.
 
+Run `cfast --help` for the categorized command guide, or
+`cfast <command> --help` for a command's options.
+
 ## Installation
 
 Requires Linux, Python 3.10+, a C++20-capable `g++`, GNU `time`, and `prlimit`.
@@ -85,6 +88,8 @@ The filename identifies the problem: `1032D.cpp`, `1234B1.cpp`, or
 | `cfast run main.cpp --problem 1032D` | Associate a differently named file with saved samples |
 | `cfast add 1032D` | Open an editor to add a custom case |
 | `cfast clean` | Preview downloaded samples unused for 30 days |
+| `cfast clean --all --yes` | Reset all saved tests, including custom cases |
+| `cfast --help` | Show the categorized command guide |
 
 ### Results
 
@@ -97,13 +102,19 @@ test 2: WA (...)
 6
 --expected--
 5
-1/2 passed
+FAILED: 1/2 passed (1 failed)
 ```
 
 Verdicts include **OK**, **WA**, **TLE**, **MLE**, **RE**, and **OLE**.
 Compilation errors stop the run and show the compiler output. Successful runs
 exit with status `0`; failed tests and setup errors exit with `1`. Invalid CLI
 syntax exits with `2`.
+
+Passing results and `PASSED` summaries are green. Failures, incorrect output,
+and `FAILED` summaries are red; section headings are cyan. Colors are enabled
+automatically in terminals. Use `--color always` to force them, or
+`--color never` / `NO_COLOR=1` to disable them. Empty output is shown explicitly
+as `(no output)`.
 
 Each complete sample is passed to a fresh process through standard input.
 Standard output is compared as whitespace-separated tokens; `cerr` stays separate.
@@ -128,11 +139,14 @@ cfast 1032D --eps 1e-6       # Explicit absolute/relative floating-point toleran
   A separate wall-clock guard of `max(3 seconds, 3 × CPU limit)` stops stalled
   programs. GNU time reports CPU usage in hundredths of a second.
 - **Memory:** `prlimit` enforces a hard **virtual address-space** ceiling, and peak
-  resident memory is measured separately. An explicit uncaught allocation failure
-  under the cap is reported as MLE. A program that handles allocation failure
-  itself may instead exit normally or report RE. Limits below 16 MiB are unsupported.
+  resident memory is measured separately. MLE is reported when measured memory
+  exceeds the limit. An uncaught allocation error below that measured limit is
+  RE with an explanation: `bad_alloc` can result from invalid input, an invalid
+  allocation size, or the address-space cap. It does not by itself prove MLE.
+  A program that handles allocation failure itself may exit normally. Limits
+  below 16 MiB are unsupported.
 - **Output:** standard output and standard error each have an 8 MiB file limit.
-  Failure displays are truncated at 64 KiB. Set `NO_COLOR=1` to disable colors.
+  Failure displays are truncated at 64 KiB.
 
 Local results apply to the cases you run. They cannot guarantee a Codeforces
 verdict: hidden tests, hardware, compiler settings, and memory accounting differ.
@@ -149,8 +163,8 @@ sandbox for untrusted executables.
 ## Templates and custom cases
 
 Edit `template.cpp`, or put a personal override at `~/.cf/template.cpp`.
-The template's test-count input is opt-in: uncomment `cin >> t` only when the
-problem starts with a test count.
+The template reads a leading test count and returns safely if that read fails.
+For a single-case problem, replace the test-count loop with one `solve()` call.
 
 Add an input/expected-output pair from files:
 
@@ -167,6 +181,8 @@ EDITOR='subl -w' cfast add 1032D
 Custom cases are stored under `~/.cf/tests/1032D/custom/` and run with the samples.
 Importing the problem again refreshes the samples and preserves custom cases.
 With no ID, `cfast add` uses the latest C++ file's name.
+Blank custom inputs are rejected. Existing blank custom cases are skipped with
+a warning and do not count as passes or failures.
 
 ## Sample storage and cleanup
 
@@ -182,15 +198,20 @@ cfast clean                         # Preview samples unused for 30 days
 cfast clean --yes                   # Remove those samples
 cfast clean --older-than 90 --yes    # Choose another retention period
 cfast clean 1032D --yes              # Remove one problem's downloaded samples
-cfast clean --all --yes              # Remove all downloaded samples
+cfast clean --all --yes              # Reset ALL tests, including custom cases
+cfast clean --all --samples-only --yes  # Remove only downloads; keep custom cases
 ```
 
 Cleanup previews by default; `--dry-run` makes that explicit. Only `--yes`
 deletes files. Age is measured from the most recent import or test run. Existing
 caches without a usage marker use the sample files' modification times.
-Custom cases, problem metadata, and solution files are kept. Removing samples
-does not affect a run that has already copied its cases to temporary storage.
-You can re-import removed samples with Competitive Companion.
+Age-based and single-problem cleanup keep custom cases and problem metadata.
+**`--all --yes` is a complete reset:** it removes sample files, custom cases,
+metadata, and usage markers for every cached problem. Add `--samples-only` to
+keep custom cases and metadata. Solution files are never part of the cache.
+Cleanup does not affect a run that has already copied its cases to temporary
+storage. You can re-import removed samples with Competitive Companion; back up
+custom cases before a complete reset if you need them later.
 
 Cleanup is manual; samples do not silently expire while you are working offline.
 

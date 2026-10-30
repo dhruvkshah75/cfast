@@ -14,6 +14,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import textwrap
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -27,6 +28,7 @@ OUTPUT_LIMIT = 8 * 1024 * 1024
 DEFAULT_TIMEOUT = 5.0
 DEFAULT_MEMORY = 256.0
 DEFAULT_RETENTION_DAYS = 30
+COLOR_MODE = "auto"
 
 
 class ToolError(Exception):
@@ -210,6 +212,8 @@ def add(args):
             editor = os.environ.get("EDITOR") or ("subl -w" if shutil.which("subl") else "vi")
             if subprocess.run(shlex.split(editor) + [str(path) for path in pair]).returncode:
                 raise ToolError("editor failed; no test saved")
+        if not pair[0].read_bytes().strip():
+            raise ToolError("custom test input is empty; no test saved")
         with problem_lock(pid):
             folder = TESTS / pid / "custom"
             folder.mkdir(parents=True, exist_ok=True)
@@ -238,6 +242,9 @@ def human_size(size):
 def clean(args):
     if args.id and (args.all or args.older_than is not None):
         raise ToolError("choose a problem ID, --all, or --older-than DAYS")
+    if args.samples_only and not args.all:
+        raise ToolError("--samples-only must be used with --all")
+    reset = args.all and not args.samples_only
     days = args.older_than if args.older_than is not None else DEFAULT_RETENTION_DAYS
     cutoff = None if args.id or args.all else time.time() - days * 86400
     if args.id:
@@ -261,6 +268,19 @@ def clean(args):
         with problem_lock(pid):
             if not folder.is_dir() or folder.is_symlink():
                 continue
+            if reset:
+                cached = [path for path in folder.rglob("*")
+                          if path.is_file() and not path.is_symlink()]
+                sample_size = sum(path.stat().st_size for path in cached)
+                count = sum(path.suffix in (".in", ".out") for path in cached)
+                if args.yes:
+                    shutil.rmtree(folder)
+                problems += 1
+                files += count
+                size += sample_size
+                print(f"{'cleared' if args.yes else 'would clear'} {pid}: "
+                      f"{count} test files ({human_size(sample_size)} cached data)")
+                continue
             samples = downloaded_samples(folder)
             if not samples:
                 continue
@@ -279,10 +299,14 @@ def clean(args):
             size += sample_size
             print(f"{'removed' if args.yes else 'would remove'} {pid}: "
                   f"{len(samples)} sample files ({human_size(sample_size)})")
-    print(f"{'Removed' if args.yes else 'Preview'}: {files} sample files in "
-          f"{problems} problems ({human_size(size)} of sample data). Custom cases are kept.")
-    if files and not args.yes:
-        print("Use --yes to remove these downloaded samples; re-import them with Competitive Companion when needed.")
+    if reset:
+        print(f"{'Cleared' if args.yes else 'Preview'}: {files} test files in "
+              f"{problems} problems ({human_size(size)} cached data). Includes custom cases and metadata.")
+    else:
+        print(f"{'Removed' if args.yes else 'Preview'}: {files} sample files in "
+              f"{problems} problems ({human_size(size)} of sample data). Custom cases are kept.")
+    if problems and not args.yes:
+        print("Use --yes to apply this cleanup. Removed downloads can be re-imported with Competitive Companion.")
     return 0
 
 
@@ -330,6 +354,9 @@ def load_cases(pid, snapshot):
                 expected = inp.with_suffix(".out")
                 if not expected.is_file():
                     raise ToolError(f"missing expected output: {expected}")
+                if prefix and not inp.read_bytes().strip():
+                    print(f"warning: skipped {prefix}{inp.stem}: custom input is empty", file=sys.stderr)
+                    continue
                 case = snapshot / str(len(cases) + 1)
                 case.mkdir()
                 shutil.copyfile(inp, case / "case.in")
@@ -344,18 +371,32 @@ def load_cases(pid, snapshot):
 
 
 def print_section(label, path):
-    print(f"--{label}--")
+    print(styled(f"--{label}--", "36"))
     with path.open("rb") as source:
         raw = source.read(65537)
-    print(raw[:65536].decode("utf-8", errors="replace").rstrip("\n"))
+    content = raw[:65536].decode("utf-8", errors="replace").rstrip("\n")
+    if not raw:
+        content = "(no output)" if label == "got" else "(empty)"
+    elif not raw.strip():
+        content = "(whitespace only)"
+    if label in ("got", "stderr"):
+        content = styled(content, "31")
+    elif label == "expected":
+        content = styled(content, "32")
+    print(content)
     if len(raw) > 65536:
         print("[display truncated after 64 KiB]")
 
 
-def color(value, ok=False):
-    if not sys.stdout.isatty() or "NO_COLOR" in os.environ:
+def styled(value, code):
+    if COLOR_MODE == "never" or (COLOR_MODE == "auto" and
+            (not sys.stdout.isatty() or os.environ.get("NO_COLOR"))):
         return value
-    return f"\033[{32 if ok else 31}m{value}\033[0m"
+    return f"\033[{code}m{value}\033[0m"
+
+
+def color(value, ok=False):
+    return styled(value, "1;32" if ok else "1;31")
 
 
 def check_case(command, gnu_time, executable, case, timeout, memory, eps):
@@ -436,10 +477,9 @@ def check_case(command, gnu_time, executable, case, timeout, memory, eps):
     stderr = err.read_text(encoding="utf-8", errors="replace") if err.exists() else ""
     if "prlimit:" in stderr:
         raise ToolError(f"could not enforce resource limits: {stderr.strip()}")
-    # The kernel denies address-space allocations before RSS necessarily grows.
-    # Only label an explicit C++ allocation diagnostic as MLE, not every crash.
-    if result["status"] == "RE" and ("std::bad_alloc" in stderr or "cannot allocate memory" in stderr.lower()):
-        result["status"] = "MLE"
+    # bad_alloc can also come from an invalid size or invalid input. It is
+    # not evidence that the process exceeded the problem's memory limit.
+    if result["status"] in ("RE", "MLE") and ("std::bad_alloc" in stderr or "cannot allocate memory" in stderr.lower()):
         result["allocation_failure"] = True
     if result["status"] == "RE" and result.get("exitcode") in (128 + signal.SIGXCPU,):
         result["status"] = "TLE"
@@ -468,7 +508,7 @@ def run(args):
         print(f"compiling {source.name} ...", flush=True)
         compiled = subprocess.run(["g++", "-std=c++20", "-O2", "-Wall", "-DLOCAL", str(source), "-o", str(executable)])
         if compiled.returncode:
-            print(color("compile error"))
+            print(color("FAILED: compile error"))
             return 1
         passed = 0
         for label, case in cases:
@@ -482,43 +522,115 @@ def run(args):
                 stats += f", {memory_used / 1.024:.2f} MiB peak RSS"
             if status == "AC":
                 passed += 1
-                print(f"test {label}: {color('OK', ok=True)} ({stats})", flush=True)
+                print(color(f"test {label}: OK ({stats})", ok=True), flush=True)
             else:
                 verdict = f"RE (exit {result.get('exitcode')})" if status == "RE" else status
-                print(f"test {label}: {color(verdict)} ({stats})", flush=True)
+                print(color(f"test {label}: {verdict} ({stats})"), flush=True)
                 if status == "WA":
                     print_section("input", case / "case.in")
                     print_section("got", actual)
                     print_section("expected", case / "case.out")
                 elif status in ("RE", "MLE", "OLE") and stderr.exists() and stderr.stat().st_size:
                     print_section("stderr", stderr)
-        print(f"{passed}/{len(cases)} passed")
+                if result.get("allocation_failure"):
+                    print("Allocation failed: check input and allocation sizes. The address-space cap may also "
+                          "deny an allocation; bad_alloc alone does not prove MLE.")
+        success = passed == len(cases)
+        summary = f"{'PASSED' if success else 'FAILED'}: {passed}/{len(cases)} passed"
+        if not success:
+            summary += f" ({len(cases) - passed} failed)"
+        print(color(summary, ok=success))
         return 0 if passed == len(cases) else 1
 
 
+def appearance_parser():
+    result = argparse.ArgumentParser(prog="cfast", add_help=False)
+    result.add_argument("--color", choices=("auto", "always", "never"), default="auto",
+                        help="terminal colors (default: auto; respects NO_COLOR)")
+    return result
+
+
+def print_overview():
+    print(styled("cfast — C++ sample testing from your terminal", "1;36"))
+    print("\nUsage: cfast [ID | COMMAND] [OPTIONS]")
+    sections = [
+        ("TEST YOUR CODE", [
+            ("cfast", "Compile and test the latest .cpp in this directory"),
+            ("cfast <ID>", "Compile and test <ID>.cpp"),
+            ("cfast run <file.cpp>", "Compile and test a specific C++ file"),
+        ]),
+        ("IMPORT AND CREATE", [
+            ("cfast listen", "Receive Competitive Companion samples on port 27121"),
+            ("cfast new <ID>", "Create <ID>.cpp from your template; never overwrite"),
+        ]),
+        ("CUSTOM TEST CASES", [
+            ("cfast add [ID]", "Open an editor to add input and expected output"),
+            ("  --input FILE --output FILE", "Add a pair from files instead of an editor"),
+        ]),
+        ("CLEAN UP SAVED TESTS", [
+            ("cfast clean", "Preview downloaded samples unused for 30 days"),
+            ("cfast clean <ID> --yes", "Remove this problem's downloaded samples"),
+            ("cfast clean --older-than N --yes", "Remove downloads unused for N days"),
+            ("cfast clean --all --yes", "Reset ALL saved tests, including custom cases"),
+            ("  --samples-only", "With --all, keep custom cases and metadata"),
+            ("  --dry-run", "Preview cleanup without deleting (the default)"),
+        ]),
+        ("TESTING OPTIONS", [
+            ("--problem ID", "Use ID's tests for a differently named source file"),
+            ("--timeout SECONDS", "Override the problem's CPU-time limit"),
+            ("--memory MIB", "Override the address-space memory cap"),
+            ("--eps VALUE", "Enable absolute/relative floating-point tolerance"),
+            ("--color auto|always|never", "Choose output colors; auto respects NO_COLOR"),
+        ]),
+        ("MORE HELP", [
+            ("cfast --help", "Show this command guide"),
+            ("cfast <command> --help", "Show all options for one command"),
+            ("cfast listen --port PORT", "Use a different Companion port"),
+        ]),
+    ]
+    for heading, entries in sections:
+        print("\n" + styled(heading, "1;36"))
+        for command, description in entries:
+            width = max(40, min(110, shutil.get_terminal_size(fallback=(100, 24)).columns))
+            if width < 90:
+                print(f"  {command}")
+                print(textwrap.fill(description, width=width, initial_indent="      ", subsequent_indent="      "))
+            else:
+                lines = textwrap.wrap(description, width=width - 39)
+                print(f"  {command:<36} {lines[0]}")
+                for line in lines[1:]:
+                    print(" " * 39 + line)
+    print("\n" + styled("EXAMPLES", "1;36"))
+    print("  cfast 2266E\n  cfast run main.cpp --problem 2266E\n  cfast 2266E --color always")
+    print("\nSamples: ~/.cf/tests/<ID>/  |  Green: passed  |  Red: failed")
+
+
 def parser():
-    result = argparse.ArgumentParser(prog="cfast", description=__doc__)
+    appearance = appearance_parser()
+    result = argparse.ArgumentParser(prog="cfast", description=__doc__, parents=[appearance])
     subs = result.add_subparsers(dest="command")
-    listening = subs.add_parser("listen", help="receive Competitive Companion samples")
+    listening = subs.add_parser("listen", help="receive Competitive Companion samples", parents=[appearance])
     listening.add_argument("--port", type=int, default=27121)
-    creating = subs.add_parser("new", help="create ID.cpp from your template")
+    creating = subs.add_parser("new", help="create ID.cpp from your template", parents=[appearance])
     creating.add_argument("id")
-    running = subs.add_parser("run", help="compile and test a C++ file")
+    running = subs.add_parser("run", help="compile and test a C++ file", parents=[appearance])
     running.add_argument("source", nargs="?")
     running.add_argument("--problem", help="problem ID when the source has another name")
     running.add_argument("--timeout", type=positive, help="per-sample CPU seconds; overrides problem metadata")
     running.add_argument("--memory", type=positive, help="hard address-space ceiling in MiB")
     running.add_argument("--eps", type=positive, help="absolute/relative floating-point tolerance")
-    adding = subs.add_parser("add", help="add a custom input/output pair")
+    adding = subs.add_parser("add", help="add a custom input/output pair", parents=[appearance])
     adding.add_argument("id", nargs="?")
     adding.add_argument("--input", type=Path)
     adding.add_argument("--output", type=Path)
-    cleaning = subs.add_parser("clean", help="remove downloaded samples; preview by default")
+    cleaning = subs.add_parser("clean", help="clean saved test data; preview by default", parents=[appearance])
     cleaning.add_argument("id", nargs="?", help="clean samples for one problem")
     selection = cleaning.add_mutually_exclusive_group()
     selection.add_argument("--older-than", type=positive, metavar="DAYS",
                            help=f"samples unused for this many days (default: {DEFAULT_RETENTION_DAYS})")
-    selection.add_argument("--all", action="store_true", help="select all downloaded samples")
+    selection.add_argument("--all", action="store_true", help="reset every problem cache, including custom cases")
+    cleaning.add_argument("--samples-only", action="store_true",
+                          help="with --all, keep custom cases and metadata")
     action = cleaning.add_mutually_exclusive_group()
     action.add_argument("--yes", action="store_true", help="delete selected samples")
     action.add_argument("--dry-run", action="store_true", help="preview only (the default)")
@@ -526,7 +638,13 @@ def parser():
 
 
 def main(argv=None):
+    global COLOR_MODE
     argv = list(sys.argv[1:] if argv is None else argv)
+    appearance, argv = appearance_parser().parse_known_args(argv)
+    COLOR_MODE = appearance.color
+    if argv in (["--help"], ["-h"]):
+        print_overview()
+        return 0
     commands = {"listen", "new", "run", "add", "clean"}
     if not argv or (argv[0] not in commands and argv[0] not in ("-h", "--help")):
         argv.insert(0, "run")
