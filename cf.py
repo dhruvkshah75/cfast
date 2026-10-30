@@ -370,8 +370,9 @@ def load_cases(pid, snapshot):
     return metadata, cases
 
 
-def print_section(label, path, *, ok=False):
-    print(styled(f"--{label}--", "36"))
+def print_section(label, path):
+    heading = f"--{label}--"
+    print(heading if label in ("got", "expected") else styled(heading, "36"))
     with path.open("rb") as source:
         raw = source.read(65537)
     content = raw[:65536].decode("utf-8", errors="replace").rstrip("\n")
@@ -379,14 +380,10 @@ def print_section(label, path, *, ok=False):
         content = "(no output)" if label == "got" else "(empty)"
     elif not raw.strip():
         content = "(whitespace only)"
-    if label == "got":
-        content = styled(content, "32" if ok else "31")
-    elif label == "stderr":
+    if label == "stderr":
         content = styled(content, "31")
     elif label == "debug (stderr)":
         content = styled(content, "33")
-    elif label == "expected":
-        content = styled(content, "32")
     print(content)
     if len(raw) > 65536:
         print("[display truncated after 64 KiB]")
@@ -540,7 +537,7 @@ def run(args):
                     print("Allocation failed: check input and allocation sizes. The address-space cap may also "
                           "deny an allocation; bad_alloc alone does not prove MLE.")
             if status in ("AC", "WA"):
-                print_section("got", actual, ok=status == "AC")
+                print_section("got", actual)
                 print_section("expected", case / "case.out")
             if stderr.exists() and stderr.stat().st_size:
                 section = "stderr" if status in ("RE", "MLE", "OLE") else "debug (stderr)"

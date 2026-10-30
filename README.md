@@ -114,14 +114,15 @@ Compilation errors stop the run and show the compiler output. Successful runs
 exit with status `0`; failed tests and setup errors exit with `1`. Invalid CLI
 syntax exits with `2`.
 
-Passing results and `PASSED` summaries are green. Failures, incorrect output,
-and `FAILED` summaries are red; debug output is yellow and section headings are
-cyan. Colors are enabled automatically in terminals. Use `--color always` to
+Passing statuses and `PASSED` summaries are green. Failure statuses and `FAILED`
+summaries are red; debug output is yellow and diagnostic headings are cyan.
+Colors are enabled automatically in terminals. Use `--color always` to
 force them, or
 `--color never` / `NO_COLOR=1` to disable them. Empty output is shown explicitly
 as `(no output)`.
 Both passing and wrong-answer tests show `--got--` and `--expected--`.
-Matching output is green; incorrect output is red.
+These two sections use plain terminal text (normally white), with no added color
+on their headings or values.
 
 Each complete sample is passed to a fresh process through standard input.
 Standard output is compared as whitespace-separated tokens; `cerr` stays separate.
