@@ -1,7 +1,18 @@
 #include <bits/stdc++.h>
 using namespace std;
-using i64 = int64_t;
-constexpr i64 INF = numeric_limits<i64>::max() / 4;
+
+typedef long long ll;
+typedef unsigned long long ull;
+typedef pair<int,int> pii;
+typedef pair<ll,ll> pll;
+typedef tuple<int,int,int> tiii;
+
+#define all(x) x.begin(), x.end()
+#define rall(x) x.rbegin(), x.rend()
+#define yes cout << "YES" << endl;
+#define no cout << "NO" << endl;
+#define setbits(x) __builtin_popcount(x)
+#define setbitsll(x) __builtin_popcountll(x)
 
 #ifdef LOCAL
 template <class... T> void debug_values(const T&... values) {
@@ -13,14 +24,15 @@ template <class... T> void debug_values(const T&... values) {
 #define dbg(...) ((void)0)
 #endif
 
-void run_case() {
+void solve() {
     // Write your solution here.
 }
 
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    int t = 1;
-    // cin >> t;  // Uncomment only if the problem input starts with a case count.
-    while (t--) run_case();
+
+    int t;
+    cin >> t;  
+    while (t--) solve();
 }
