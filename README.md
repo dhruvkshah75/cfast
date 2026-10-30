@@ -14,7 +14,7 @@ On Ubuntu/Debian, install prerequisites if needed:
 
 ```bash
 sudo apt install python3 python3-venv g++ git time util-linux
-git clone <your-repository-url> /home/dhruv/cf-tool
+git clone https://github.com/dhruvkshah75/cf-tool.git /home/dhruv/cf-tool
 cd /home/dhruv/cf-tool
 ./install.sh
 ```
@@ -199,11 +199,15 @@ installs. Install tests use cached wheels if present, otherwise need network.
 The local suite will not be present in a fresh clone; verification results are
 recorded in PROGRESS.md.
 
-Create a **private** GitHub repository for backup, then add its remote and push:
+The backup repository is [dhruvkshah75/cf-tool](https://github.com/dhruvkshah75/cf-tool)
+and is **private**. Authenticate with an account that has access before cloning
+(for example, `gh auth login` and `gh auth setup-git` for HTTPS). To back up later edits:
 
 ```bash
-git remote add origin <your-private-repository-url>
-git push -u origin main
+cd /home/dhruv/cf-tool
+git add cf.py template.cpp install.sh requirements.txt README.md SPEC.md PROGRESS.md .gitignore
+git commit -m "Update cfast"
+git push origin main
 ```
 
 On a new Linux laptop, install the prerequisites above, clone your repository,

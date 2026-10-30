@@ -14,7 +14,7 @@ conflicting portions of the original specification preserved below.
 - Save original numbered samples at ~/.cf/tests/<ID>/1.in and 1.out. Preserve user-added cases under custom/ on refresh. Add a small custom-case command in the first version because edge cases are useful for meaningful local checking.
 - Interactive and file-I/O problems may be saved, but unsupported run modes must fail clearly. The default template has a case loop whose input count is opt-in.
 - Commit significant passing checkpoints. Keep development tests and fixtures ignored and untracked as explicitly requested; keep one-command local unittest verification and record the results in PROGRESS.md.
-- No questions for already-known setup details. Ship a reasonable editable template. GitHub publishing is not necessary for the exit condition; document private repository backup/restore without creating an unsolicited public repository.
+- No questions for already-known setup details. Ship a reasonable editable template. Keep the GitHub backup private, as specified in the original backup instructions, and document clone/install restore steps.
 
 ---
 
