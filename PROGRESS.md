@@ -7,10 +7,10 @@ resource checks in the first version, and ignored development tests.
 ## Checklist
 
 - [x] Initialize /home/dhruv/cf-tool, preserve SPEC.md, add ignore rules and this checklist.
-- [ ] Phase 1: listener receives Companion JSON on loopback port 27121; saves numbered samples centrally.
+- [x] Phase 1: listener receives Companion JSON on loopback port 27121; saves numbered samples centrally.
 - [ ] Acceptance 1: POST realistic JSON to the running listener; verify ~/.cf/tests/1032D/1.in and 1.out.
-- [ ] Acceptance 8: contest, problemset, gym, B1/C2 URL unit tests.
-- [ ] Phase 1 / Acceptance 2: template creation from a nested directory; refusal to overwrite; symlink/template resolution.
+- [x] Acceptance 8: contest, problemset, gym, B1/C2 URL unit tests.
+- [x] Phase 1 / Acceptance 2: template creation from a nested directory; refusal to overwrite; symlink/template resolution.
 - [ ] Phase 1 / Acceptance 3: one-command compile and oj run, most recently modified source, OK and exit 0.
 - [ ] Acceptance 4: wrong answer prints input/got/expected and exits 1.
 - [ ] Acceptance 5: infinite loop TLE and crash RE, nonzero exit.
@@ -32,3 +32,7 @@ resource checks in the first version, and ignored development tests.
 ## Stuck items
 
 None.
+
+- Checkpoint 1: 8 unittest tests passed (real loopback HTTP, malformed payloads, URL forms, atomic refresh/custom preservation, nested template creation and no-overwrite).
+- The shell sandbox denies socket creation; reran the same integration tests with authorized host access and they passed.
+- Package verification found that oj 12.0.0 is unreleased. Pinned published 11.5.1; added setuptools 80.9.0 because Python 3.12 removed distutils required by this oj release.

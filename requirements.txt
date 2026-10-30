@@ -1,1 +1,3 @@
-online-judge-tools==12.0.0
+online-judge-tools==11.5.1
+# oj 11.5.1 imports distutils; setuptools provides it on Python 3.12+.
+setuptools==80.9.0
