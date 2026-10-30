@@ -178,7 +178,7 @@ sandbox for untrusted executables.
 ## Templates and custom cases
 
 Edit `template.cpp`, or put a personal override at `~/.cf/template.cpp`.
-The template's `dbg()` supports scalar values and vectors.
+The template's `dbg()` supports scalar values, pairs, and vectors.
 The template reads a leading test count and returns safely if that read fails.
 For a single-case problem, replace the test-count loop with one `solve()` call.
 

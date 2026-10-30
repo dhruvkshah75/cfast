@@ -16,10 +16,12 @@ typedef tuple<int,int,int> tiii;
 #define setbitsll(x) __builtin_popcountll(x)
 
 #ifdef LOCAL
-// Overload operator<< so cerr knows how to print std::vector
+template <typename T1, typename T2>
+ostream& operator<<(ostream& os, const pair<T1, T2>& p) {
+    return os << "{" << p.first << ", " << p.second << "}";
+}
+
 template <typename T>
-
-
 ostream& operator<<(ostream& os, const vector<T>& v) {
     os << "[";
     for(size_t i = 0; i < v.size(); ++i) {
