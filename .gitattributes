@@ -1,0 +1,8 @@
+# Force Linguist to count HTML and CSS in language stats
+*.html linguist-detectable=true
+*.css linguist-detectable=true
+*.js linguist-detectable=true
+
+# Ensure the website directory is not treated as vendored or documentation
+website/** linguist-vendored=false
+website/** linguist-documentation=false
