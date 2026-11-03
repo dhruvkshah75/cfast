@@ -31,6 +31,32 @@ commands and explain how to copy manually.
 
 ## Hosting
 
+### Vercel
+
+The repository root contains `vercel.json`. It serves `website/dist/` as a
+static site, with no install or build command. No Python server or Node.js
+application is deployed. `.vercelignore` limits CLI uploads to the static page
+and deployment configuration.
+
+For a new Vercel import, choose the `dhruvkshah75/cfast` GitHub repository,
+keep **Root Directory** at the repository root, and use the **Other** framework
+preset. The output directory is `website/dist`; leave install and build commands
+empty. Connecting GitHub lets Vercel deploy future pushes to `main`.
+
+To deploy with the official CLI from the repository root after signing in:
+
+```bash
+npx vercel link
+npx vercel project inspect --non-interactive
+npx vercel --prod
+```
+
+Confirm the linked owner and project before deploying. Local `.vercel/` state
+and environment files are ignored by Git. Vercel serves `404.html` for missing
+pages automatically.
+
+### Other static hosts
+
 Publish `website/dist/` with any static host. Configure its custom 404 document
 as `404.html` where supported. No client-side router or catch-all fallback is
 needed. Before moving domains, update the canonical URL, social metadata,

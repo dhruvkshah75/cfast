@@ -29,3 +29,8 @@ __pycache__/
 /.impeccable/
 /website/.sites-runtime/
 /website/.sites-checkout/
+
+# Local Vercel project links, caches, and environment files
+.vercel/
+.env
+.env.*
