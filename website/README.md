@@ -43,9 +43,9 @@ and deployment configuration.
 For a new Vercel import, choose the `dhruvkshah75/cfast` GitHub repository,
 keep **Root Directory** at the repository root, and use the **Other** framework
 preset. The output directory is `website/dist`; leave install and build commands
-empty. The current deployment uses the CLI. Automatic GitHub deployment is not
-enabled. A GitHub connection can be added separately to deploy future pushes
-to `main`.
+empty. The `cfast` Vercel project is connected to `dhruvkshah75/cfast`.
+Pushes to `main` automatically deploy the production website. Other branches
+can receive preview deployments through Vercel's GitHub integration.
 
 To deploy with the official CLI from the repository root after signing in:
 
