@@ -240,6 +240,9 @@ they are not stored in this repository.
 
 ## Product website
 
+Visit [cfast.vercel.app](https://cfast.vercel.app) for the product overview,
+interactive demo, and installation guide.
+
 The responsive landing page lives in [website/](website/README.md), independently
 of the CLI. It is a static site with no build step. To preview it locally:
 

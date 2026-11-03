@@ -1,6 +1,7 @@
 # Upload only the static landing page and its deployment configuration.
-**
+*
 !vercel.json
-!website/
-!website/dist/
+!website
+website/*
+!website/dist
 !website/dist/**

@@ -33,6 +33,8 @@ commands and explain how to copy manually.
 
 ### Vercel
 
+Production: [cfast.vercel.app](https://cfast.vercel.app).
+
 The repository root contains `vercel.json`. It serves `website/dist/` as a
 static site, with no install or build command. No Python server or Node.js
 application is deployed. `.vercelignore` limits CLI uploads to the static page
@@ -41,7 +43,9 @@ and deployment configuration.
 For a new Vercel import, choose the `dhruvkshah75/cfast` GitHub repository,
 keep **Root Directory** at the repository root, and use the **Other** framework
 preset. The output directory is `website/dist`; leave install and build commands
-empty. Connecting GitHub lets Vercel deploy future pushes to `main`.
+empty. The current deployment uses the CLI. Automatic GitHub deployment is not
+enabled. A GitHub connection can be added separately to deploy future pushes
+to `main`.
 
 To deploy with the official CLI from the repository root after signing in:
 
