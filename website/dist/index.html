@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f5f1">
+  <title>cfast — Codeforces samples, one terminal command</title>
+  <meta name="description" content="Write C++ in your favorite editor. Use cfast to import Codeforces samples, compile your solution, and check outputs, time, and memory from your Linux terminal.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Your code. Your editor. One command. — cfast">
+  <meta property="og:description" content="A small terminal tool for Codeforces C++ sample testing. Import, compile, and check from the folders you already use.">
+  <meta property="og:url" content="https://cfast.candid-jelly-3185.chatgpt.site/">
+  <meta property="og:image" content="https://cfast.candid-jelly-3185.chatgpt.site/assets/social.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="cfast — Your code. Your editor. One command.">
+  <meta name="twitter:description" content="Run Codeforces samples from your Linux terminal.">
+  <meta name="twitter:image" content="https://cfast.candid-jelly-3185.chatgpt.site/assets/social.png">
+  <link rel="canonical" href="https://cfast.candid-jelly-3185.chatgpt.site/">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/geist-400.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="assets/geist-600.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <svg aria-hidden="true" focusable="false" class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M15 8V4H4v11h4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-replay" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 2 8M4 4v6h6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4.3 1.3-4.3-2.2-6-2.7M15 22v-3.5c0-1 .1-1.4-.5-2 3.2-.4 6.5-1.5 6.5-7A5.5 5.5 0 0 0 19.5 6 5.1 5.1 0 0 0 19.3 2S18.1 1.6 15 3.5a13.4 13.4 0 0 0-6 0C5.9 1.6 4.7 2 4.7 2A5.1 5.1 0 0 0 4.5 6 5.5 5.5 0 0 0 3 9.5c0 5.5 3.3 6.6 6.5 7-.6.6-.5 1.2-.5 2V22"/></symbol>
+  </svg>
+  <a class="skip-link button-sm" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="navigation" aria-label="Main navigation">
+      <a class="brand title-1" href="#home" aria-label="cfast home"><span class="brand-mark" aria-hidden="true">&gt;_</span>cfast<span class="brand-dot">.</span></a>
+      <div class="desktop-links">
+        <a class="title-4" href="#workflow">How it works</a>
+        <a class="title-4" href="#commands">Commands</a>
+        <a class="title-4" href="https://github.com/dhruvkshah75/cfast" target="_blank" rel="noopener noreferrer">GitHub <svg aria-hidden="true" focusable="false" class="icon small"><use href="#i-external"/></svg></a>
+      </div>
+      <a href="#install" class="button button-dark button-sm nav-install">Install cfast <svg aria-hidden="true" focusable="false" class="icon small"><use href="#i-arrow"/></svg></a>
+      <button class="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button>
+    </nav>
+  </header>
+  <div class="mobile-menu" id="mobile-menu" hidden inert>
+    <nav aria-label="Mobile navigation">
+      <a class="heading-3" href="#workflow">How it works</a>
+      <a class="heading-3" href="#commands">Commands</a>
+      <a class="heading-3" href="#install">Install cfast</a>
+      <a class="heading-3" href="#faq">Questions</a>
+      <a class="title-2" href="https://github.com/dhruvkshah75/cfast" target="_blank" rel="noopener noreferrer">View on GitHub <svg aria-hidden="true" focusable="false" class="icon"><use href="#i-external"/></svg></a>
+    </nav>
+    <p class="caption-2">A small tool for your next accepted solution.</p>
+  </div>
+  <main id="main">
+    <section class="hero container" id="home" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 class="heading-1" id="hero-title">Your code.<br>Your editor.<br><span class="hero-last">One command<span class="orange-dot">.</span></span></h1>
+        <p class="body-3 hero-description">Run Codeforces samples from your terminal. cfast compiles your C++, checks the output, and reports time and memory. Right where you already code.</p>
+        <a href="#install" class="button button-orange button-md">Install cfast <svg aria-hidden="true" focusable="false" class="icon"><use href="#i-arrow"/></svg></a>
+        <p class="caption-2 hero-note">Source on GitHub. Runs locally on Linux.</p>
+      </div>
+      <div class="hero-product">
+        <div class="terminal" aria-label="Interactive example of cfast output">
+          <div class="terminal-bar"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="caption-5">~/algo/codeforces</span><span class="terminal-shell caption-5">bash</span></div>
+          <div class="terminal-tabs" role="tablist" aria-label="Choose an example verdict">
+            <button class="demo-tab button-xsm" id="tab-pass" role="tab" aria-selected="true" aria-controls="terminal-output" tabindex="0" data-demo="pass"><span class="status-dot green"></span>Passed</button>
+            <button class="demo-tab button-xsm" id="tab-wa" role="tab" aria-selected="false" aria-controls="terminal-output" tabindex="-1" data-demo="wa"><span class="status-dot red"></span>Wrong answer</button>
+            <button class="demo-tab button-xsm" id="tab-tle" role="tab" aria-selected="false" aria-controls="terminal-output" tabindex="-1" data-demo="tle"><span class="status-dot amber"></span>Time limit</button>
+          </div>
+          <div class="terminal-content" role="tabpanel" id="terminal-output" aria-labelledby="tab-pass" tabindex="0">
+            <p class="terminal-command"><span class="prompt">❯</span> cfast 4A<span class="cursor" aria-hidden="true"></span></p>
+            <div id="demo-lines">
+              <p class="term-muted">problem 4A: 4A.cpp</p>
+              <p class="term-muted">limits: 2s CPU, 256 MiB address space</p>
+              <p class="term-muted term-compile">compiling 4A.cpp ...</p>
+              <p class="term-green">test 1: OK</p>
+              <p class="term-muted term-metric">0.000s CPU · 0.004s wall · 3.12 MiB peak RSS</p>
+              <p class="term-output">--got--<br>YES<br>--expected--<br>YES</p>
+              <p class="term-green term-summary">PASSED: 1/1 passed</p>
+            </div>
+          </div>
+          <div class="terminal-footer"><span class="caption-5">Illustrative sample run</span><button class="replay-button button-xsm" id="replay-demo"><svg aria-hidden="true" focusable="false" class="icon small"><use href="#i-replay"/></svg>Replay</button></div>
+        </div>
+        <div class="product-footnote"><svg aria-hidden="true" focusable="false" class="icon small"><use href="#i-check"/></svg><span class="caption-2">Less copying samples. More solving problems.</span></div>
+      </div>
+    </section>
+    <div class="compatibility container" aria-label="Supported environment">
+      <span class="caption-2">Made for the setup you already use</span>
+      <div class="compatibility-items"><span class="title-4">Linux</span><span class="title-4">C++20</span><span class="title-4">Your favorite editor</span><span class="title-4">Competitive Companion</span></div>
+    </div>
+    <section class="features container section-space" id="features" aria-labelledby="features-title">
+      <div class="section-intro reveal"><h2 class="heading-2" id="features-title">Stay in your<br>problem solving flow.</h2><p class="body-3">Keep Sublime, Vim, VS Code, or whatever works for you. Let cfast handle the repetitive part between saving your code and seeing a verdict.</p></div>
+      <div class="feature-layout">
+        <div class="feature-list">
+          <article class="feature reveal"><span class="feature-symbol" aria-hidden="true"><svg aria-hidden="true" focusable="false" class="icon"><use href="#i-arrow"/></svg></span><div><h3 class="heading-6">Your folders stay yours.</h3><p class="body-6">Run from any solution directory. Samples live in <code>~/.cf/tests/</code>; temporary binaries disappear after the run.</p></div></article>
+          <article class="feature reveal"><span class="feature-symbol" aria-hidden="true"><svg aria-hidden="true" focusable="false" class="icon"><use href="#i-check"/></svg></span><div><h3 class="heading-6">See what actually happened.</h3><p class="body-6">Compare got and expected output, even on a pass. Inspect runtime failures, CPU time, wall time, and peak memory.</p></div></article>
+          <article class="feature reveal"><span class="feature-symbol feature-code" aria-hidden="true">{ }</span><div><h3 class="heading-6">Keep your debug statements.</h3><p class="body-6"><code>cerr</code> and <code>dbg()</code> appear separately from the checked output. Debug locations use just the filename and line number.</p></div></article>
+          <article class="feature reveal"><span class="feature-symbol" aria-hidden="true"><svg aria-hidden="true" focusable="false" class="icon"><use href="#i-plus"/></svg></span><div><h3 class="heading-6">Go beyond the samples.</h3><p class="body-6">Add custom input and expected output. Refresh downloaded samples without losing your extra cases.</p></div></article>
+        </div>
+        <div class="code-scene reveal">
+          <div class="source-heading"><span class="caption-1">4A.cpp</span><span class="caption-5">Your editor, unchanged</span></div>
+          <pre class="source-code" aria-label="Example C++ solution"><code><span class="line"><span class="ln">1</span><span class="syntax-purple">#include</span> <span class="syntax-orange">&lt;bits/stdc++.h&gt;</span></span><span class="line"><span class="ln">2</span><span class="syntax-purple">using namespace</span> std;</span><span class="line"><span class="ln">3</span></span><span class="line"><span class="ln">4</span><span class="syntax-purple">int</span> <span class="syntax-blue">main</span>() {</span><span class="line"><span class="ln">5</span>    <span class="syntax-purple">int</span> weight;</span><span class="line"><span class="ln">6</span>    cin &gt;&gt; weight;</span><span class="line"><span class="ln">7</span></span><span class="line"><span class="ln">8</span>    <span class="syntax-purple">bool</span> ok = weight &gt; <span class="syntax-orange">2</span></span><span class="line"><span class="ln">9</span>           &amp;&amp; weight % <span class="syntax-orange">2</span> == <span class="syntax-orange">0</span>;</span><span class="line"><span class="ln">10</span>    cout &lt;&lt; (ok ? <span class="syntax-orange">"YES"</span> : <span class="syntax-orange">"NO"</span>);</span><span class="line"><span class="ln">11</span>}</span></code></pre>
+          <div class="editor-to-terminal"><span class="caption-1">Save your file.</span><span class="connection-line" aria-hidden="true"></span><span class="caption-1">Run your tests.</span></div>
+          <div class="inline-command"><span class="prompt" aria-hidden="true">❯</span><code>cfast 4A</code><svg aria-hidden="true" focusable="false" class="icon"><use href="#i-check"/></svg></div>
+          <p class="caption-2">No editor plugin. No project migration.</p>
+        </div>
+      </div>
+    </section>
+    <section class="manifesto" aria-label="Focus on solving">
+      <div class="container manifesto-layout"><span class="manifesto-mark" aria-hidden="true">&gt;_</span><div><p class="heading-2 word-reveal">The next idea is yours.<br>The next test is one command away.</p><p class="body-3 manifesto-description">You do the thinking. cfast takes care of the test run.</p></div></div>
+    </section>
+    <section class="workflow container section-space" id="workflow" aria-labelledby="workflow-title">
+      <div class="section-intro reveal"><h2 class="heading-2" id="workflow-title">From problem page<br>to verdict.</h2><p class="body-3">One browser extension. One spare terminal tab. The same coding routine you already know.</p></div>
+      <div class="steps">
+        <article class="step reveal"><div class="step-top"><span class="step-number caption-3">01</span><span class="caption-2">Bring the samples</span></div><h3 class="heading-5">Click the green plus.</h3><p class="body-6">Start the listener, open a Codeforces problem, and click Competitive Companion. Samples and problem limits land on your machine.</p><div class="step-command"><span class="prompt" aria-hidden="true">❯</span><code>cfast listen</code></div></article>
+        <article class="step reveal"><div class="step-top"><span class="step-number caption-3">02</span><span class="caption-2">Make it your solution</span></div><h3 class="heading-5">Write in your editor.</h3><p class="body-6">Create a C++ file from your template in your current folder. Open it in your editor and solve the problem.</p><div class="step-command"><span class="prompt" aria-hidden="true">❯</span><code>cfast new 4A</code></div></article>
+        <article class="step reveal"><div class="step-top"><span class="step-number caption-3">03</span><span class="caption-2">Close the loop</span></div><h3 class="heading-5">Save. Run. Check.</h3><p class="body-6">Compile and test every saved case with one command. Fix what failed, save, and run again.</p><div class="step-command"><span class="prompt" aria-hidden="true">❯</span><code>cfast 4A</code></div></article>
+      </div>
+      <p class="workflow-tip caption-2"><span class="keycap">tip</span> Working on one file? Bare <code>cfast</code> picks the most recently saved <code>.cpp</code> in your current directory.</p>
+    </section>
+    <section class="install-section" id="install" aria-labelledby="install-title">
+      <div class="container install-layout">
+        <div class="install-copy reveal"><h2 class="heading-2" id="install-title">A small install.<br>A shorter test loop.</h2><p class="body-3">Clone the repo, run the installer, and keep coding. cfast uses an isolated Python environment and adds a command to <code>~/.local/bin/</code>.</p><div class="requirements"><span class="caption-3">What you need</span><ul class="body-6"><li>Linux and Python 3.10+</li><li>A C++20 capable <code>g++</code></li><li>GNU <code>time</code> and <code>prlimit</code></li><li>Git and internet for installation</li></ul></div><a class="text-link button-sm" href="https://github.com/dhruvkshah75/cfast#installation" target="_blank" rel="noopener noreferrer">Full installation guide <svg aria-hidden="true" focusable="false" class="icon small"><use href="#i-external"/></svg></a></div>
+        <div class="install-instructions reveal">
+          <div class="install-block"><div class="install-block-heading"><h3 class="title-3">1. Install dependencies</h3><span class="caption-5">Ubuntu / Debian</span><button class="copy-button button-xsm" data-copy="dependencies" aria-label="Copy dependency installation command"><svg aria-hidden="true" focusable="false" class="icon small"><use href="#i-copy"/></svg><span>Copy</span></button></div><pre id="dependencies"><code>sudo apt install python3 python3-venv g++ git time util-linux</code></pre><p class="caption-5">On another Linux distribution, install the equivalent packages.</p></div>
+          <div class="install-block"><div class="install-block-heading"><h3 class="title-3">2. Install cfast</h3><button class="copy-button button-xsm" data-copy="installation" aria-label="Copy cfast installation commands"><svg aria-hidden="true" focusable="false" class="icon small"><use href="#i-copy"/></svg><span>Copy</span></button></div><pre id="installation"><code>mkdir -p ~/dev
+git clone https://github.com/dhruvkshah75/cfast.git ~/dev/cfast
+cd ~/dev/cfast
+./install.sh</code></pre><p class="caption-5">Keep this checkout in place. The installed command links to it.</p></div>
+          <div class="companion-setup"><div class="companion-plus" aria-hidden="true"><svg aria-hidden="true" focusable="false" class="icon"><use href="#i-plus"/></svg></div><div><h3 class="title-3">3. Connect Competitive Companion</h3><p class="body-6">Install the <a href="https://github.com/jmerle/competitive-companion#installation" target="_blank" rel="noopener noreferrer">browser extension</a>, add <code>27121</code> in its <strong>Custom ports</strong> setting, then run <code>cfast listen</code>.</p></div></div>
+          <details class="path-help"><summary class="caption-1">Getting “command not found”?</summary><p class="body-6">Add this line to your <code>~/.bashrc</code> or <code>~/.zshrc</code>, then open a new terminal:</p><div class="path-command"><pre id="path-command"><code>export PATH="$HOME/.local/bin:$PATH"</code></pre><button class="copy-button button-xsm" data-copy="path-command" aria-label="Copy PATH setup command"><svg aria-hidden="true" focusable="false" class="icon small"><use href="#i-copy"/></svg><span>Copy</span></button></div></details>
+        </div>
+      </div>
+    </section>
+    <section class="commands container section-space" id="commands" aria-labelledby="commands-title">
+      <div class="commands-description reveal"><h2 class="heading-2" id="commands-title">Small commands.<br>Useful control.</h2><p class="body-3">Use problem limits automatically, add a tricky case, or clear old downloads. The useful options are a command away.</p><a class="text-link button-sm" href="https://github.com/dhruvkshah75/cfast#write-save-test" target="_blank" rel="noopener noreferrer">Read the command guide <svg aria-hidden="true" focusable="false" class="icon small"><use href="#i-external"/></svg></a></div>
+      <div class="command-reference reveal">
+        <div class="command-tabs" role="tablist" aria-label="Command categories"><button class="command-tab button-sm" id="command-tab-run" role="tab" data-command="run" aria-selected="true" aria-controls="command-panel" tabindex="0">Test</button><button class="command-tab button-sm" id="command-tab-add" role="tab" data-command="add" aria-selected="false" aria-controls="command-panel" tabindex="-1">Custom cases</button><button class="command-tab button-sm" id="command-tab-clean" role="tab" data-command="clean" aria-selected="false" aria-controls="command-panel" tabindex="-1">Cleanup</button></div>
+        <div id="command-panel" role="tabpanel" aria-labelledby="command-tab-run" tabindex="0">
+          <div class="command-entry"><code>cfast 4A</code><p class="body-6">Compile and check every saved case.</p></div><div class="command-entry"><code>cfast 4A --timeout 2 --memory 256</code><p class="body-6">Override CPU seconds and memory in MiB.</p></div><div class="command-entry"><code>cfast 4A --eps 1e-6</code><p class="body-6">Set an explicit floating point tolerance.</p></div><div class="command-entry"><code>cfast --help</code><p class="body-6">See every command, grouped by purpose.</p></div>
+        </div>
+      </div>
+    </section>
+    <section class="faq container" id="faq" aria-labelledby="faq-title">
+      <div class="faq-heading reveal"><h2 class="heading-2" id="faq-title">Before your<br> first run.</h2><p class="body-3">A few things worth knowing.</p></div>
+      <div class="faq-list reveal">
+        <details><summary class="title-2">Do I need to change my editor?<svg aria-hidden="true" focusable="false" class="icon"><use href="#i-plus"/></svg></summary><p class="body-3">No. Write C++ in Sublime Text, Vim, VS Code, or any other editor. Save the file, then run cfast from a terminal in that directory. There is no editor plugin to install.</p></details>
+        <details><summary class="title-2">Does it match the Codeforces judge exactly?<svg aria-hidden="true" focusable="false" class="icon"><use href="#i-plus"/></svg></summary><p class="body-3">cfast checks only the cases saved on your machine. It uses online-judge-tools for output comparison and Linux resource limits. Hidden tests, hardware, and memory accounting differ from Codeforces, so passing locally does not guarantee acceptance.</p><p class="body-3">The memory ceiling applies to virtual address space, while reported peak RSS is resident memory. This can be stricter than the online judge. CPU limits also have whole second enforcement granularity, with a separate wall time guard.</p></details>
+        <details><summary class="title-2">Can I test without an internet connection?<svg aria-hidden="true" focusable="false" class="icon"><use href="#i-plus"/></svg></summary><p class="body-3">Yes. After installation and importing samples, compilation and testing work offline. Reimporting samples needs access to the problem page and Competitive Companion.</p></details>
+        <details><summary class="title-2">Can I add my own tests and template?<svg aria-hidden="true" focusable="false" class="icon"><use href="#i-plus"/></svg></summary><p class="body-3">Yes. Run <code>cfast add 4A</code>, or provide input and expected output files with <code>--input</code> and <code>--output</code>. Custom cases survive sample refreshes. Edit the repo’s <code>template.cpp</code> or put an override at <code>~/.cf/template.cpp</code>. The supplied template reads a leading test count; adapt it for single case problems.</p></details>
+        <details><summary class="title-2">Will downloaded tests pile up forever?<svg aria-hidden="true" focusable="false" class="icon"><use href="#i-plus"/></svg></summary><p class="body-3">Reimporting a problem replaces its downloaded samples. Run <code>cfast clean</code> to preview downloads unused for 30 days, then <code>cfast clean --yes</code> to remove them. A full reset with <code>cfast clean --all --yes</code> also deletes custom cases. Your solution files are outside the cache.</p></details>
+        <details><summary class="title-2">Which problems and languages are supported?<svg aria-hidden="true" focusable="false" class="icon"><use href="#i-plus"/></svg></summary><p class="body-3">C++20 solutions on Linux, using standard input and output. Codeforces contest, problemset, and gym URLs are supported, including indexes such as B1. Interactive problems, file based I/O, and problems requiring a special checker are unsupported. Floating point tolerance is available with <code>--eps</code>.</p></details>
+      </div>
+    </section>
+    <section class="final-cta container section-space reveal"><div><h2 class="heading-2">Less test wrangling.<br>Back to the problem.</h2><p class="body-3">Keep your setup. Shorten the loop.</p></div><a href="#install" class="button button-orange button-md">Install cfast <svg aria-hidden="true" focusable="false" class="icon"><use href="#i-arrow"/></svg></a></section>
+  </main>
+  <footer class="footer container"><a class="brand title-1" href="#home" aria-label="cfast home"><span class="brand-mark" aria-hidden="true">&gt;_</span>cfast<span class="brand-dot">.</span></a><p class="caption-2">Built by <a href="https://github.com/dhruvkshah75" target="_blank" rel="noopener noreferrer">Dhruv Shah</a> for the next test run.</p><nav aria-label="Footer"><a class="caption-1" href="https://github.com/dhruvkshah75/cfast" target="_blank" rel="noopener noreferrer">GitHub</a><a class="caption-1" href="https://github.com/dhruvkshah75/cfast/issues" target="_blank" rel="noopener noreferrer">Report an issue</a><button class="motion-toggle caption-1" id="motion-toggle" aria-pressed="false" hidden>Pause motion</button><a class="caption-1" href="privacy.html">Privacy</a><a class="caption-1" href="terms.html">Terms</a></nav></footer>
+  <div class="toast caption-1" role="status" aria-live="polite" aria-atomic="true" id="toast"></div>
+</body>
+</html>

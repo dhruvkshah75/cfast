@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /privacy.html
+Disallow: /terms.html
+Disallow: /404.html
+Sitemap: https://cfast.candid-jelly-3185.chatgpt.site/sitemap.xml

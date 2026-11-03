@@ -237,3 +237,14 @@ Cleanup is manual; samples do not silently expire while you are working offline.
 Repeat the installation and browser setup on the new Linux machine. Samples can
 be imported again. Back up your solution folders and custom cases separately;
 they are not stored in this repository.
+
+## Product website
+
+The responsive landing page lives in [website/](website/README.md), independently
+of the CLI. It is a static site with no build step. To preview it locally:
+
+```bash
+python3 -m http.server 4173 --bind 127.0.0.1 --directory website/dist
+```
+
+Open `http://127.0.0.1:4173/`. See the website README for hosting instructions.

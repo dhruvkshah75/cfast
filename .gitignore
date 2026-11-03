@@ -23,3 +23,9 @@ __pycache__/
 .codex/
 .aws/
 .DS_Store
+
+# Local website design exports and browser captures
+/.superdesign/
+/.impeccable/
+/website/.sites-runtime/
+/website/.sites-checkout/
